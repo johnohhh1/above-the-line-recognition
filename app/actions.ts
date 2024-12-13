@@ -3,24 +3,14 @@
 import { google } from 'googleapis'
 import { Readable } from 'stream'
 import sharp from 'sharp'
-import { PDFDocument } from 'pdf-lib'
 
 export async function submitForm(formData: string) {
   try {
     // Convert base64 PDF data to buffer
     const pdfBuffer = Buffer.from(formData.split(',')[1], 'base64')
     
-    // Load the PDF document
-    const pdfDoc = await PDFDocument.load(pdfBuffer)
-    
-    // Convert the first page to PNG (better quality for text)
-    const pages = await pdfDoc.getPages()
-    const pngImage = await pages[0].render({
-      scale: 2.0 // Higher scale for better quality
-    })
-
-    // Convert PNG to JPEG with sharp
-    const jpegBuffer = await sharp(Buffer.from(pngImage.buffer))
+    // Convert PDF to JPEG using sharp
+    const jpegBuffer = await sharp(pdfBuffer)
       .jpeg({
         quality: 95,
         chromaSubsampling: '4:4:4'
@@ -57,3 +47,4 @@ export async function submitForm(formData: string) {
     return { message: 'An error occurred while submitting the form.' }
   }
 }
+
